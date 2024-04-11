@@ -1,0 +1,37 @@
+version: '3.8'
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./public:/usr/share/nginx/html:ro
+    depends_on:
+      - nodejs
+    networks:
+      - webnet
+
+  nodejs:
+    build: ./nodejs
+    volumes:
+      - ./nodejs:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - webnet
+
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./mosquitto/config/passwordfile:/mosquitto/config/passwordfile:ro
+      - ./mosquitto/config/aclfile:/mosquitto/config/aclfile:ro
+      - ./mosquitto/log:/mosquitto/log
+    networks:
+      - webnet
+
+networks:
+  webnet:
